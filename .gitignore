@@ -1,0 +1,10 @@
+*.h5
+*.db
+*.pt
+*.txt
+*.nc
+*.mat
+.DS_Store
+*.xlsx
+*.fig
+*.pdf

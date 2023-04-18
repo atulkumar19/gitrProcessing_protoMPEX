@@ -201,7 +201,7 @@ materialZ = zeros(length(planes),1);
 surfs = zeros(length(planes),1);
 
 HeliconRefined=find(centroid(:,3) > helregion1 & centroid(:,3) < helregion2);
-materialZ(HeliconRefined) = 74;
+materialZ(HeliconRefined) = 13;
 surfs(HeliconRefined)=1;
 
 %%
@@ -289,7 +289,7 @@ for i=1:length(centroid)
     dens_value(i) = ne_surf(I);
     temp_value(i) = te_surf(I);
  
-    if abs(centroid(i,3))>  abs(centroid(i,3))> 1.7462+0.2 % ICH: 3.5+0.2 %
+    if abs(centroid(i,3))> 1.7462+0.2 % ICH: 3.5+0.2 %
         e_value(i) = 0;
         dens_value(i) = 0;
         temp_value(i) = 0;

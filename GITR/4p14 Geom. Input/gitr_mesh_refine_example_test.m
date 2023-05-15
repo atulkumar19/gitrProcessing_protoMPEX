@@ -272,7 +272,7 @@ helicon_data_test
 % zz=zz+3.5;% ICH
 
 
-zz=zz+1.7462
+zz=zz+1.7462;
 ne_surf=double(interp1(double(z),double(ne(2500,:)),zz));
 te_surf=double(interp1(double(z),double(te(2500,:)),zz));
 
@@ -286,18 +286,23 @@ for i=1:length(centroid)
     
     [M I] = min(distance);
     e_value(i) = emag(I);
-    dens_value(i) = ne_surf(I);
+    dens_value(i) = ne_surf(I); % SOLPS-ITER
+    dens_value_josh(i) = ne_surf_josh(I); % Analytical
+
     temp_value(i) = te_surf(I);
  
     if abs(centroid(i,3))> 1.7462+0.2 % ICH: 3.5+0.2 %
         e_value(i) = 0;
         dens_value(i) = 0;
+         dens_value_josh(i) = 0;
         temp_value(i) = 0;
     end
 end
 
 % dens_value=double(interp1(z0,ne0(2500,:),zz));
 % temp_value=double(interp1(z0,te0(2500,:),zz));
+
+
 
 fileID = fopen('gitrGeometryPointPlane3d.cfg','w');
 fprintf(fileID,'geom = \n{ \n   x1 = [');
@@ -546,7 +551,10 @@ ion_temp_wall = temp_value;
 
 %Y0=interpn(energy,angle,spyld',e_value,element_angle','pchip',0);
 
-Y0 = interpn(narray,Tarray,Varray,yields,ion_dens_wall,0.*ion_dens_wall+5,e_value,'pchip',0);
+% Y0 = interpn(narray,Tarray,Varray,yields,ion_dens_wall,0.*ion_dens_wall+5,e_value,'pchip',0);%Josh case
+Y0 = interpn(narray,Tarray,Varray,yields,ion_dens_wall,0.*ion_dens_wall+5,e_value,'pchip',0);%SOLPS-ITER case
+
+
 
 plotSet = 1:1:length(planes);
 
@@ -565,10 +573,12 @@ zlabel('Z [m]')
 
 ion_temp_wall=temp_value;
 ion_dens_wall = dens_value;
+ion_dens_wall_josh = dens_value_josh;
 
 k=1.38e-23*11604;
 c_bar = sqrt(8*k.*ion_temp_wall/pi/4/1.66e-27);
 flux = 0.25.*ion_dens_wall.*c_bar;
+flux_josh = 0.25.*ion_dens_wall_josh.*c_bar;
 % flux = ion_dens_wall.*ion_flow_wall;
 
 plotSet = find(surfs>0);
@@ -630,6 +640,15 @@ xlabel('Theta [radian]') % x-axis label
 ylabel('z [m]') % y-axis label
 set(gca,'fontsize',16)
 
+figure
+patch(transpose(THETA),transpose(Z),0*transpose(Z),flux_josh(plotSet).*Y0(plotSet),'FaceAlpha',1,'EdgeColor','k')
+% patch(transpose(X),transpose(Y),transpose(Z),flux(plotSet).*Y0(plotSet),'FaceAlpha',1,'EdgeColor','k')
+
+colorbar
+title({'D eroded Al Flux [m^{-2}s^{-1}]','Low Flux Case'})
+xlabel('Theta [radian]') % x-axis label
+ylabel('z [m]') % y-axis label
+set(gca,'fontsize',16)
 xx = -0.06;
 yy = 0.0;
 zz = 1.7462;

@@ -94,7 +94,7 @@ clc
 % %% Model Paper Condition
 % 
 % %erosion_rate=1.383740762924176e+16 %Non-Mag Case
-% %erosion_rate=2.097668244238563e+17; %Mag-Case
+erosion_rate=2.097668244238563e+17; %Mag-Case
 % 
 % %% Extended voltage range with updated yields not using angles
 % 
@@ -746,8 +746,8 @@ gridZ = ncread(specFile,'gridZ');
 figure
 slice1 = sum(Chargedens(:,:,:,2:6),4);
 slice1 = reshape(slice1,length(gridR),length(gridY),length(gridZ));
-RadialSlice1=slice1(:,:,5900);
-%RadialSlice1=sum(slice1(:,:,5875:5905)); %5905
+RadialSlice1=slice1(:,:,5300);
+RadialSlice1=sum(slice1(:,:,5300:5905),3); %5905
 %RadialSlice1=reshape(RadialSlice1,1,31);
 slice1 = sum(slice1,2);
 slice1 = reshape(slice1,length(gridR),length(gridZ));

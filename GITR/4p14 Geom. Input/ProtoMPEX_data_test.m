@@ -54,27 +54,35 @@ ne_interp = 0.*ne;
 
 % figure
 % plot(gridr,ne(:,280))
-for i=1:5000
-    inds = find(ne(:,i) > 0);
+% for i=1:5000
+%     inds = find(ne(:,i) > 0);
+%     if length(inds) > 0
+%         
+% ne_interp_local = interp1(gridr(find(ne(:,i) > 0)), 0.16*ne(find(ne(:,i)>0),i),gridr,'linear','extrap');
+% ne_interp_local(find(ne_interp_local<0)) = 0;
+% ne_interp(:,i) = ne_interp_local;
+%     end
+% end
+
+for i= 1:5000
+    inds = find((ne(:,i)) > 0);
     if length(inds) > 0
-ne_interp_local = interp1(gridr(find(ne(:,i) > 0)), ne(find(ne(:,i)>0),i),gridr,'linear','extrap');
-ne_interp_local(find(ne_interp_local<0)) = 0;
-ne_interp(:,i) = ne_interp_local;
+        ne_interp(inds,i) = ne(inds,i);
+        ne_interp(inds(end):end,i) = mean(ne(inds(end-5),i)).*(0.163.*(exp(-(gridr(inds(end):end) - gridr(inds(end)))./0.005)));
     end
 end
 ne_interp(isnan(ne_interp))=0;
 figure
-h = pcolor(gridz,gridr,ne_interp)
+h = pcolor(gridz,gridr,ne_interp);
 h.EdgeColor = 'none';
 
-% figure;
-% h=imagesc(r_grid, z_grid,ne_g);
-% 
-% h.EdgeColor = 'none';
 colorbar
 title({'Proto-MPEX ne ProfileSOLPS'})
 xlabel('r [m]')
 ylabel('z [m]')
+
+% figure; plot(gridz,ne(:,2500))
+% hold on; plot(gridz,ne_interp(:,2500))
 
 %% Flow profileSOLPS extrapolation
 vr=vrS;
@@ -130,6 +138,14 @@ te=teS;
 gridr=rS;
 gridz=zS;
 te_interp = 0.*te;
+
+% for i= 1:5000
+%     inds = find((te(:,i)) > 0);
+%     if length(inds) > 0
+%         te_interp(inds,i) = te(inds,i);
+%         te_interp(inds(end):end,i) = mean(te(inds(end-100),i)).*(1.6.*(exp(-(gridr(inds(end):end) - gridr(inds(end)))./0.005)));
+%     end
+% end
 
 % figure
 % plot(gridr,ne(:,280))
@@ -282,3 +298,73 @@ netcdf.putVar(ncid,bznc,bz);
 
 netcdf.close(ncid);
 % ti1 = ncread('profilesHelicon_new.nc','ti');
+
+%% Read Simulation Profiles
+disp('Reading simulation profiles')
+x=ncread('profilesProtoMPEX.nc','x');
+z=ncread('profilesProtoMPEX.nc','z');
+
+ne=ncread('profilesProtoMPEX.nc','ne');
+figure; imagesc(z,x,ne);
+set(gca,'YDir','normal')
+set(gca,'FontName','times','fontSize',18);
+ylabel('$r$ [m]','interpreter','Latex','fontSize',18);
+xlabel('$z$ [m]','interpreter','latex','fontSize',18);
+title('Input Density')
+colorbar;
+
+
+
+te=ncread('profilesProtoMPEX.nc','te');
+figure; imagesc(z,x,te);
+set(gca,'YDir','normal')
+set(gca,'FontName','times','fontSize',18);
+ylabel('$r$ [m]','interpreter','Latex','fontSize',18);
+xlabel('$z$ [m]','interpreter','latex','fontSize',18);
+title('Input Te')
+colorbar;
+
+% vx=ncread('../TeX1/input/profilesProtoMPEX.nc','vx');
+% vx=ncread('../TeX1/input/profilesProtoMPEX.nc','vy');
+vz=ncread('profilesProtoMPEX.nc','vz');
+figure;imagesc(z,x,vz);
+set(gca,'YDir','normal')
+set(gca,'FontName','times','fontSize',18);
+ylabel('$r$ [m]','interpreter','Latex','fontSize',18);
+xlabel('$z$ [m]','interpreter','latex','fontSize',18);
+title('Input Vz')
+colorbar;
+% figure; plot(vz(1,:))
+
+figure; plot(z,te(2500,:))
+xlabel('$z$ [m]','interpreter','Latex','fontSize',18);
+ylabel('$T_e [eV]$','interpreter','Latex','fontSize',18);
+title('Input Axial Te')
+figure; plot(x,te(:,1))
+xlabel('$r$ [m]','interpreter','Latex','fontSize',18);
+ylabel('$T_e [eV]$','interpreter','Latex','fontSize',18);
+title('Input Radial Te')
+
+figure; plot(z,ne(2500,:))
+xlabel('$z$ [m]','interpreter','Latex','fontSize',18);
+ylabel('$n_e [m^{-3}]$','interpreter','Latex','fontSize',18);
+title('Input Axial ne')
+figure; plot(x,ne(:,1))
+xlabel('$r$ [m]','interpreter','Latex','fontSize',18);
+ylabel('$n_e [m^{-3}]$','interpreter','Latex','fontSize',18);
+title('Input Radial ne')
+
+figure; plot(z,vz(1,:))
+xlabel('$z$ [m]','interpreter','Latex','fontSize',18);
+ylabel('$vz [m/s]$','interpreter','Latex','fontSize',18);
+title('Input Axial Vz')
+figure; plot(x,vz(:,1))
+xlabel('$r$ [m]','interpreter','Latex','fontSize',18);
+ylabel('$vz [m/s]$','interpreter','Latex','fontSize',18);
+title('Input Radial Vz')
+
+
+
+
+
+

@@ -97,15 +97,18 @@ OxyPercent=0.0;
 %% Model Paper Condition
 
 %erosion_rate=1.383740762924176e+16 %Non-Mag Case
-%erosion_rate=2.097668244238563e+17; %Mag-Case
+% erosion_rate=2.097668244238563e+17; %Mag-Case
 
 %% Extended voltage range with updated yields not using angles
+erosion_rate=1.6988e+18; %SOLPS-ITER case 
+% erosion_rate=4.2628e+18; %SOLPS-ITER case extrapolated profiles at the wall
+
 
 % erosion_rate=1.3864e+17; %Low density Non-Mag Case
 % erosion_rate=3.5369e+18; %Low density Mag Case
 % erosion_rate=5.745083061926947e+16; %High density Non-Mag Case
 
- erosion_rate=2.700019500954672e+18; %High density Mag Case
+%  erosion_rate=2.700019500954672e+18; %High density Mag Case
 
 %  erosion_rate=2.6767e+18; %High density Mag Case
 
@@ -356,45 +359,45 @@ hold off
 
 %view(90,90)
 %%
-ncdisp(file)
-edist = ncread(file,'surfEDist');
-
-nE=100;
-eDtotal = reshape(sum(edist,3),[90,nE]);
-
-figure(105)
-p4 = imagesc(linspace(0,90,90),linspace(0,1000,nE),eDtotal');
-colorbar
-meanEn=mean(eDtotal,1);
-figure; plot(linspace(0,1000,nE),movmean(meanEn,10)');
-
-
-% caxis([0 1000])
-set(gca, 'YDir', 'normal');
-
-numSurfaces=1484
-
-meanE = zeros(1,length(numSurfaces));
-
-energy_iead_gitr = linspace(5,995,nE);
-
-for i=1:numSurfaces
-
-    iead = reshape(edist(:,:,i),[90,nE]);
-
-    edist_i = sum(iead);
-
-    meanE(i)= sum(energy_iead_gitr.*edist_i)/sum(edist_i);
-
-end
-
-figure
-
- p4 = imagesc(linspace(0,90,90),linspace(0,10540,nE),iead');
- set(gca,'YDir','normal')
-
-colorbar
-% caxis([0 0.2])
+% ncdisp(file)
+% edist = ncread(file,'surfEDist');
+% 
+% nE=100;
+% eDtotal = reshape(sum(edist,3),[90,nE]);
+% 
+% figure(105)
+% p4 = imagesc(linspace(0,90,90),linspace(0,1000,nE),eDtotal');
+% colorbar
+% meanEn=mean(eDtotal,1);
+% figure; plot(linspace(0,1000,nE),movmean(meanEn,10)');
+% 
+% 
+% % caxis([0 1000])
+% set(gca, 'YDir', 'normal');
+% 
+% numSurfaces=1484
+% 
+% meanE = zeros(1,length(numSurfaces));
+% 
+% energy_iead_gitr = linspace(5,995,nE);
+% 
+% for i=1:numSurfaces
+% 
+%     iead = reshape(edist(:,:,i),[90,nE]);
+% 
+%     edist_i = sum(iead);
+% 
+%     meanE(i)= sum(energy_iead_gitr.*edist_i)/sum(edist_i);
+% 
+% end
+% 
+% figure
+% 
+%  p4 = imagesc(linspace(0,90,90),linspace(0,10540,nE),iead');
+%  set(gca,'YDir','normal')
+% 
+% colorbar
+% % caxis([0 0.2])
 
 
 
@@ -507,9 +510,13 @@ PercentExited=nExited/nP*100;
 
 %%% histogram of particles which hit end cap
 nBins = 20;
-edges = linspace(-0.07,0.07,nBins+1);
-centers = linspace(-0.07,0.07,nBins);
+% edges = linspace(-0.07,0.07,nBins+1);
+% centers = linspace(-0.07,0.07,nBins);
+
+edges = linspace(0,0.07,nBins+1);
+centers = 0.5*(edges(1:end-1) + edges(2:end))
 hist_bins = zeros(1,nBins);
+areas = pi*(edges(2:end).^2 - edges(1:end-1).^2);
 
 for i=1:nBins
 
@@ -519,7 +526,7 @@ end
 radialprofile=hist_bins*erosionPP;
 
 figure(321)
-plot(centers,radialprofile)
+plot(centers,radialprofile./areas)
 xlabel('X [cm]','FontSize',13);
 ylabel('Particles/s','FontSize',13);
 set(gcf,'color','w')
@@ -637,7 +644,7 @@ DownstreamRadialFlux(ii)=erosionPP*Sumhitcap2./((pi*xflux(ii+1)^2)-(pi*xflux(ii)
 end
 
 figure
-plot(xflux(1:end-1),movmean(DownstreamRadialFlux,10))
+plot(xflux(1:end-1),20.*movmean(DownstreamRadialFlux,10))
 title({' Al flux at z=4.14 m for the', 'High Density Magnetized Case'})
 xlabel('x [m]')
 ylabel('Al ion flux [Particles/m^2/s]')
@@ -646,7 +653,7 @@ set(gca,'fontsize',13)
 
 
 figure
-plot(radiusx,DownstreamAverageFlux,'k')
+plot(radiusx,0.5E3.*DownstreamAverageFlux,'k')
 
 title({' Al flux at z=4.14 m for the', 'High Density Magnetized Case'})
 xlabel('Plasma Radius [m]')
@@ -810,7 +817,7 @@ gridZ = ncread(specFile,'gridZ');
 figure
 slice1 = sum(Chargedens(:,:,:,2:6),4);
 slice1 = reshape(slice1,length(gridR),length(gridY),length(gridZ));
-RadialSlice1=slice1(:,:,5905); % Target
+RadialSlice1=slice1(:,:,5900); % Target
 % RadialSlice1=slice1(:,:,5000); % ICRF Antenna
 % RadialSlice1=slice1(:,:,2140); % Helicon Antenna
 %RadialSlice1=sum(slice1(:,:,5875:5905)); %5905
@@ -854,15 +861,15 @@ AverageRadialDensity1=movmean(RadialDensity1(35,:),5);
 % end
 
 
-figure;
-plot(gridR,AverageRadialDensity1, 'LineWidth',2)
-xlabel('x [m]')
-ylabel('Density [Particles/m^3]','FontSize',18, 'LineWidth',2)
+% figure;
+% plot(gridR,AverageRadialDensity1, 'LineWidth',2)
+% xlabel('x [m]')
+% ylabel('Density [Particles/m^3]','FontSize',18, 'LineWidth',2)
+% % title({' Al density at z=4.14 m for the', 'High Density Magnetized Case'})
+% set(gca, 'LineWidth',2, 'FontSize',18)
+% % title({' Al density at z=1.75 m for the', 'High Density Magnetized Case'})
 % title({' Al density at z=4.14 m for the', 'High Density Magnetized Case'})
-set(gca, 'LineWidth',2, 'FontSize',18)
-% title({' Al density at z=1.75 m for the', 'High Density Magnetized Case'})
-title({' Al density at z=4.14 m for the', 'High Density Magnetized Case'})
-xlim([0 0.06])
+% xlim([0 0.06])
 
 figure
 h=pcolor(gridR,gridY,RadialSlice1'); %counts at axial point
